@@ -10,20 +10,21 @@ use Illuminate\Support\Facades\Validator;
 
 class DoneController extends Controller
 {
+    // Handles marking an action as done or not done
     public function markAsDone(Request $request)
     {
         try {
-            // Get the authenticated user
+            // Authenticate and get the user from the token
             $user = JWTAuth::parseToken()->authenticate();
 
-            // Validate the request
+            // Validate the request input
             $validator = Validator::make($request->all(), [
                 'action' => 'required|in:getmovie,getmusic,getbook',
                 'title' => 'required|string',
                 'done' => 'required|in:yes,no',
             ]);
 
-            // Check if validation fails
+            // If validation fails, return the first validation error
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()->first()], 400);
             }
@@ -42,38 +43,43 @@ class DoneController extends Controller
                     break;
             }
 
-            // Check if the user says yes or no
+            // Check if the user says "yes" or "no"
             $isDone = $request->input('done') === 'yes';
 
-            // Create or update the record
+            // Create or update the record in the 'done' table
             $done = Done::updateOrCreate(
                 [
-                    'username' => $user->username,
+                    'username' => $user->username, // Matching criteria
                     'title' => $request->input('title'),
                     'type' => $type,
                 ],
                 [
-                    'done' => $isDone,
+                    'done' => $isDone, // Values to update
                 ]
             );
 
+            // Return a success message and the updated 'done' record
             return response()->json(['message' => 'Status updated successfully.', 'done' => $done], 200);
         } catch (JWTException $e) {
+            // Handle JWT exceptions (e.g., token not provided or invalid)
             return response()->json(['error' => 'Token not provided or invalid'], 401);
         }
     }
 
+    // Handles retrieving all done titles for the authenticated user
     public function getDoneTitles(Request $request)
     {
         try {
-            // Get the authenticated user
+            // Authenticate and get the user from the token
             $user = JWTAuth::parseToken()->authenticate();
 
-            // Get all done titles for the authenticated user
+            // Retrieve all records from the 'done' table for the authenticated user
             $dones = Done::where('username', $user->username)->get();
 
+            // Return the list of done titles
             return response()->json(['dones' => $dones], 200);
         } catch (JWTException $e) {
+            // Handle JWT exceptions (e.g., token not provided or invalid)
             return response()->json(['error' => 'Token not provided or invalid'], 401);
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Auth\Authenticatable;
@@ -14,21 +15,25 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 {
     use Authenticatable, Authorizable, CanResetPassword;
 
+    // Fillable attributes for mass assignment
     protected $fillable = [
         'username', 'password',
     ];
 
+    // Hidden attributes (not shown in JSON responses)
     protected $hidden = [
         'password',
     ];
 
+    // Method required by JWTSubject interface to get the identifier used in the JWT
     public function getJWTIdentifier()
     {
-        return $this->getKey();
+        return $this->getKey(); // Return the primary key of the user
     }
 
+    // Method required by JWTSubject interface to add custom claims to the JWT payload
     public function getJWTCustomClaims()
     {
-        return [];
+        return []; // No custom claims by default
     }
 }

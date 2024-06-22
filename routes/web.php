@@ -13,15 +13,28 @@
 |
 */
 
+// Route to display the application version
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+// Route to handle user login
 $router->post('/login', 'AuthController@login');
-$router->post('/gateway', 'GatewayController@handleRequest');
-$router->post('addtofavorites', ['middleware' => 'jwt.auth', 'uses' => 'FavoriteController@addToFavorites']);
-$router->delete('/removefavorite', 'FavoriteController@removeFavorite');
-$router->get('/favorites', 'FavoriteController@getAllFavorites');
-$router->post('/mark-as-done', 'DoneController@markAsDone');
-$router->get('/done-titles', 'DoneController@getDoneTitles');
 
+// Route to handle gateway requests for movies, music, and books
+$router->post('/gateway', 'GatewayController@handleRequest');
+
+// Route to add a favorite item (requires JWT authentication)
+$router->post('addtofavorites', ['middleware' => 'jwt.auth', 'uses' => 'FavoriteController@addToFavorites']);
+
+// Route to remove a favorite item
+$router->delete('/removefavorite', 'FavoriteController@removeFavorite');
+
+// Route to get all favorite items
+$router->get('/favorites', 'FavoriteController@getAllFavorites');
+
+// Route to mark an action as done
+$router->post('/mark-as-done', 'DoneController@markAsDone');
+
+// Route to get all titles marked as done
+$router->get('/done-titles', 'DoneController@getDoneTitles');

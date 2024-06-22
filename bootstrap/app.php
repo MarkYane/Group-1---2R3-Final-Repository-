@@ -23,26 +23,30 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-$app->withFacades();
+$app->withFacades(); // Enable facades for easy access to Laravel components
 
-$app->withEloquent();
+$app->withEloquent(); // Enable Eloquent ORM
 
+// Register JWTAuth Service Provider for Lumen
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
+
+// Define route middleware for JWT authentication
 $app->routeMiddleware([
-    'auth' => App\Http\Middleware\Authenticate::class,
-    'jwt.auth' => \Tymon\JWTAuth\Middleware\GetUserFromToken::class,
-    'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
-    'jwt.auth' => App\Http\Middleware\CheckJWTToken::class,
+    'auth' => App\Http\Middleware\Authenticate::class, // Your custom authentication middleware
+    'jwt.auth' => \Tymon\JWTAuth\Middleware\GetUserFromToken::class, // Middleware to retrieve user from JWT token
+    'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class, // Middleware to refresh JWT token
+    'jwt.verify' => App\Http\Middleware\CheckJWTToken::class, // Custom middleware to verify JWT token
 ]);
 
+// Additional middleware registration (if needed)
 $app->routeMiddleware([
-    'jwt.auth' => App\Http\Middleware\JwtMiddleware::class,
+    'jwt.middleware' => App\Http\Middleware\JwtMiddleware::class, // Custom JWT middleware
 ]);
 
-
-
+// Configure JWT settings from config/jwt.php
 $app->configure('jwt');
 
+// Configure authentication settings from config/auth.php
 $app->configure('auth');
 
 
