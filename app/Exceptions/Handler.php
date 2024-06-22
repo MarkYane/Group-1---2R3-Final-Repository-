@@ -24,30 +24,31 @@ class Handler extends ExceptionHandler
         ValidationException::class,
     ];
 
+    /**
+     * Handle an unauthenticated user exception.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
+        // Check if the request expects JSON response or is an API request
         if ($request->expectsJson() || $request->is('api/*')) {
+            // Handle JWTTokenMissingException separately
             if ($exception instanceof JWTTokenMissingException) {
                 return response()->json(['error' => 'JWT token is missing.'], 401);
             }
+            // For other unauthenticated scenarios, return a generic JSON response
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
+        // Delegate to the parent class handler for non-JSON/non-API requests
         return parent::unauthenticated($request, $exception);
     }
 
-    // protected function invalidJson($request, ValidationException $exception)
-    // {
-    //     return response()->json([
-    //         'message' => $exception->getMessage(),
-    //         'errors' => $exception->errors(),
-    //     ], $exception->status);
-    // }
-
     /**
      * Report or log an exception.
-     *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
      * @param  \Throwable  $exception
      * @return void
@@ -56,6 +57,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
+        // Delegate exception reporting/logging to the parent class
         parent::report($exception);
     }
 
@@ -70,6 +72,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // Render the exception into an HTTP response using the parent class
         return parent::render($request, $exception);
     }
 }
